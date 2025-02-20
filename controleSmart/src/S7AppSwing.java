@@ -1,3 +1,4 @@
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
@@ -16,7 +17,7 @@ public class S7AppSwing extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
 
-        JLabel labelIp = new JLabel("Ip Host");
+        JLabel labelIp = new JLabel("Ip Host:");
         labelIp.setBounds(50, 10, 100, 30);
         add(labelIp);
 
@@ -24,38 +25,40 @@ public class S7AppSwing extends JFrame {
         textIp.setBounds(150, 10, 200, 30);
         add(textIp);
 
-        JLabel labelDb = new JLabel("DB: ");
-        labelDb.setBounds(50, 50, 100, 30);
-        add(labelDb);
+        JLabel labelDB = new JLabel("DB:");
+        labelDB.setBounds(50, 50, 100, 30);
+        add(labelDB);
 
-        JTextField textDb = new JTextField("6");
-        textDb.setBounds(150, 50, 200, 30);
-        add(textDb);
+        JTextField textDB = new JTextField("6");
+        textDB.setBounds(150, 50, 200, 30);
+        add(textDB);
 
-        JLabel labelType = new JLabel("Tipo: ");
+        JLabel labelType = new JLabel("Tipo:");
         labelType.setBounds(50, 100, 100, 30);
+        add(labelType);
 
         JComboBox<String> comboType = new JComboBox<>(
-                new String[] { "String", "Block", "Integer", "Float", "Byte", "Boolean" });
+                new String[]{"String", "Block", "Integer", "Float", "Byte", "Boolean"});
         comboType.setBounds(150, 100, 200, 30);
         add(comboType);
 
-        JLabel labelOffSet = new JLabel("Offset: ");
-        labelOffSet.setBounds(50, 150, 100, 30);
-        add(labelOffSet);
+        JLabel labelOffset = new JLabel("Offset:");
+        labelOffset.setBounds(50, 150, 100, 30);
+        add(labelOffset);
 
-        JTextField textOffSet = new JTextField("16");
-        textOffSet.setBounds(150, 150, 200, 30);
-        add(textOffSet);
+        JTextField textOffset = new JTextField("16");
+        textOffset.setBounds(150, 150, 200, 30);
+        add(textOffset);
 
-        JLabel labelBitNumber = new JLabel("Bit Number");
+        JLabel labelBitNumber = new JLabel("Bit Number:");
         labelBitNumber.setBounds(50, 200, 100, 30);
         add(labelBitNumber);
 
         JTextField textBitNumber = new JTextField("0");
         textBitNumber.setBounds(150, 200, 200, 30);
+        add(textBitNumber);
 
-        JLabel labelSize = new JLabel("Tamanho: ");
+        JLabel labelSize = new JLabel("Tamanho");
         labelSize.setBounds(50, 250, 100, 30);
         add(labelSize);
 
@@ -64,10 +67,10 @@ public class S7AppSwing extends JFrame {
         add(textSize);
 
         comboType.addActionListener((ActionEvent e) -> {
-
             String selectedItem = (String) comboType.getSelectedItem();
             switch (selectedItem) {
-                case "Boolean" -> textSize.setText("1");
+                case "Boolean" ->
+                    textSize.setText("1");
                 case "Byte" -> {
                     textSize.setText("1");
                     textBitNumber.setText("0");
@@ -80,7 +83,8 @@ public class S7AppSwing extends JFrame {
                     textSize.setText("4");
                     textBitNumber.setText("0");
                 }
-                case "String" -> textBitNumber.setText("0");
+                case "String" ->
+                    textBitNumber.setText("0");
             }
         });
 
@@ -88,7 +92,7 @@ public class S7AppSwing extends JFrame {
         buttonRead.setBounds(150, 300, 200, 30);
         add(buttonRead);
 
-        JLabel labelValueRead = new JLabel("Valor Lido:");
+        JLabel labelValueRead = new JLabel("Valor lido:");
         labelValueRead.setBounds(50, 350, 200, 30);
         add(labelValueRead);
 
@@ -101,14 +105,15 @@ public class S7AppSwing extends JFrame {
         buttonWrite.setBounds(150, 400, 200, 30);
         add(buttonWrite);
 
-        JLabel labelValue = new JLabel("Valor Escrito");
-        labelValue.setBounds(40, 450, 100, 30);
+        JLabel labelValue = new JLabel("Valor Escrito: ");
+        labelValue.setBounds(50, 450, 100, 30);
+        add(labelValue);
 
         JTextField textValueWrite = new JTextField();
         textValueWrite.setBounds(150, 450, 200, 30);
         add(textValueWrite);
 
-        JButton buttonLeituras = new JButton("Leitura Cíclica");
+        JButton buttonLeituras = new JButton("Leitura Ciclica");
         buttonLeituras.setBounds(150, 500, 200, 30);
         add(buttonLeituras);
 
@@ -118,8 +123,8 @@ public class S7AppSwing extends JFrame {
 
         buttonRead.addActionListener((ActionEvent e) -> {
             try {
-                int db = Integer.parseInt(textDb.getText());
-                int offSet = Integer.parseInt(textOffSet.getText());
+                int db = Integer.parseInt(textDB.getText());
+                int offset = Integer.parseInt(textOffset.getText());
                 int bitNumber = !textBitNumber.getText().equals("") ? Integer.parseInt(textBitNumber.getText()) : -1;
                 int size = Integer.parseInt(textSize.getText());
                 String type = (String) comboType.getSelectedItem();
@@ -129,27 +134,27 @@ public class S7AppSwing extends JFrame {
 
                 switch (type.toLowerCase()) {
                     case "string" -> {
-                        String str = plc.readString(db, offSet, size);
+                        String str = plc.readString(db, offset, size);
                         textValue.setText(str);
                     }
                     case "block" -> {
-                        String blk = bytesToHex(plc.readBlock(db, offSet, size), size);
+                        String blk = bytesToHex(plc.readBlock(db, offset, size), size);
                         textValue.setText(blk);
                     }
                     case "float" -> {
-                        float flt = plc.readFloat(db, offSet);
+                        float flt = plc.readFloat(db, offset);
                         textValue.setText(String.valueOf(flt));
                     }
                     case "integer" -> {
-                        int val = plc.readInt(db, offSet);
+                        int val = plc.readInt(db, offset);
                         textValue.setText(String.valueOf(val));
                     }
                     case "byte" -> {
-                        byte byt = plc.readByte(db, offSet);
+                        byte byt = plc.readByte(db, offset);
                         textValue.setText(String.valueOf(byt));
                     }
                     case "boolean" -> {
-                        boolean bit = plc.readBit(db, offSet, bitNumber);
+                        boolean bit = plc.readBit(db, offset, bitNumber);
                         textValue.setText(String.valueOf(bit));
                     }
                     default -> {
@@ -164,8 +169,8 @@ public class S7AppSwing extends JFrame {
 
         buttonWrite.addActionListener((ActionEvent e) -> {
             try {
-                int db = Integer.parseInt(textDb.getText());
-                int offSet = Integer.parseInt(textOffSet.getText());
+                int db = Integer.parseInt(textDB.getText());
+                int offset = Integer.parseInt(textOffset.getText());
                 int bitNumber = !textBitNumber.getText().equals("") ? Integer.parseInt(textBitNumber.getText()) : -1;
                 int size = Integer.parseInt(textSize.getText());
                 String type = (String) comboType.getSelectedItem();
@@ -175,46 +180,47 @@ public class S7AppSwing extends JFrame {
 
                 switch (type.toLowerCase()) {
                     case "string" -> {
-                        if (plc.writeString(db, offSet, size, textValueWrite.getText().trim())) {
-                            System.out.println("Escrita no CLP realizada com Suceso");
+                        if (plc.writeString(db, offset, size, textValueWrite.getText().trim())) {
+                            System.out.println("Escrita no CLP realizada com sucesso!");
                         } else {
-                            System.out.println("Erro da escrita do CLP");
+                            System.err.println("Erro de escrita no CLP!");
                         }
                     }
                     case "block" -> {
-                        if (plc.writeBlock(db, offSet, size,
+                        if (plc.writeBlock(db, offset, size,
                                 PlcConnector.hexStringToByteArray(textValueWrite.getText().trim()))) {
-                            System.out.println("Escrita no CLP realizada com Suceso");
+                            System.out.println("Escrita no CLP realizada com sucesso!");
                         } else {
-                            System.out.println("Erro da escrita do CLP");
+                            System.err.println("Erro de escrita no CLP!");
                         }
                     }
                     case "float" -> {
-                        if (plc.writeFloat(db, offSet, Float.parseFloat(textValueWrite.getText().trim()))) {
-                            System.out.println("Escrita no CLP realizada com Suceso");
+                        if (plc.writeFloat(db, offset, Float.parseFloat(textValueWrite.getText().trim()))) {
+                            System.out.println("Escrita no CLP realizada com sucesso!");
                         } else {
-                            System.out.println("Erro da escrita do CLP");
+                            System.err.println("Erro de escrita no CLP!");
                         }
                     }
                     case "integer" -> {
-                        if(plc.writeInt(db, offSet, Integer.parseInt(textValueWrite.getText().trim()))) {
-                            System.out.println("Escrita no CLP realizada com Suceso");
+                        if (plc.writeInt(db, offset, Integer.parseInt(textValueWrite.getText().trim()))) {
+                            System.out.println("Escrita no CLP realizada com sucesso!");
                         } else {
-                            System.out.println("Erro da escrita do CLP");
+                            System.err.println("Erro de escrita no CLP!");
                         }
                     }
                     case "byte" -> {
-                        if(plc.writeByte(db, offSet, Byte.parseByte(textValueWrite.getText().trim()))){
-                            System.out.println("Escrita no CLP realizada com Suceso");
+                        if (plc.writeByte(db, offset, Byte.parseByte(textValueWrite.getText().trim()))) {
+                            System.out.println("Escrita no CLP realizada com sucesso!");
                         } else {
-                            System.out.println("Erro da escrita do CLP");
+                            System.err.println("Erro de escrita no CLP!");
                         }
                     }
                     case "boolean" -> {
-                        if(plc.writeBit(db, offSet, bitNumber, Boolean.parseBoolean(textValueWrite.getText().trim()))){
-                            System.out.println("Escrita no CLP realizada com Suceso");
+                        if (plc.writeBit(db, offset, bitNumber,
+                                Boolean.parseBoolean(textValueWrite.getText().trim()))) {
+                            System.out.println("Escrita no CLP realizada com sucesso!");
                         } else {
-                            System.out.println("Erro da escrita do CLP");
+                            System.err.println("Erro de escrita no CLP!");
                         }
                     }
                 }
@@ -222,19 +228,24 @@ public class S7AppSwing extends JFrame {
                 JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
+
     }
 
-    private static String bytesToHex(byte[] bytes, int lenght){
+    private static String bytesToHex(byte[] bytes, int length) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < lenght; i++){
+        for (int i = 0; i < length; i++) {
             sb.append(String.format("%02X", bytes[i]));
         }
         return sb.toString().trim();
     }
 
-    public static void updateTextField(int id, byte[] bytes) {}
+    public static void updateTextField(int id, byte[] bytes) {
 
-    public static void extracted(int id, byte[] bytes) {}
+    }
+
+    private static void extracted(int id, byte[] bytes) {
+
+    }
 
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeLater(() -> {
