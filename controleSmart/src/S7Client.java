@@ -1,4 +1,5 @@
 //-------------------------------------------------------------------------------------------------
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,28 +37,25 @@ public class S7Client {
     }
 
     private byte[] createConnectionRequest() {
-        return new byte[] {
-                // TPKT Header
-                0x03, 0x00, 0x00, 0x16,
-
-                // ISO 873/X.224 COTP Header
-                0x11, (byte) 0xE0, 0x00, 0x00, 0x00, 0x01,
-                0x00, (byte) 0xC1, 0x02, 0x01, 0x00, (byte) 0xC2, 0x02, 0x01, 0x01, (byte) 0xC0, 0x01, 0x09
+        return new byte[]{
+            // TPKT Header
+            0x03, 0x00, 0x00, 0x16,
+            // ISO 873/X.224 COTP Header
+            0x11, (byte) 0xE0, 0x00, 0x00, 0x00, 0x01,
+            0x00, (byte) 0xC1, 0x02, 0x01, 0x00, (byte) 0xC2, 0x02, 0x01, 0x01, (byte) 0xC0, 0x01, 0x09
         };
     }
 
     private byte[] createSetupCommunication() {
-        return new byte[] {
-                // TPKT Header
-                0x03, 0x00, 0x00, 0x19,
-
-                // ISO 873/X.224 COTP Header
-                0x02, (byte) 0xF0, (byte) 0x80,
-
-                // S7 Header
-                0x32, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00,
-                // Parameters
-                (byte) 0xF0, 0x00, 0x00, 0x01, 0x00, 0x01, (byte) 0x03, (byte) 0xC0
+        return new byte[]{
+            // TPKT Header
+            0x03, 0x00, 0x00, 0x19,
+            // ISO 873/X.224 COTP Header
+            0x02, (byte) 0xF0, (byte) 0x80,
+            // S7 Header
+            0x32, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00,
+            // Parameters
+            (byte) 0xF0, 0x00, 0x00, 0x01, 0x00, 0x01, (byte) 0x03, (byte) 0xC0
         };
     }
 
@@ -76,20 +74,20 @@ public class S7Client {
             startAddress = offset << 3;
         }
 
-        return new byte[] {
-                // TPKT + ISO 873/X.224 COTP Header
-                0x03, 0x00, 0x00, (byte) (31), 0x02, (byte) 0xF0, (byte) 0x80,
-                // S7 Header
-                0x32, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00,
-                // Parameter: Function Code, Item Count
-                0x04, 0x01,
-                // Item Header: Variable Specification, Length of Following, Syntax ID
-                0x12, 0x0A, 0x10,
-                // Transport Size, Parameter length, DB Number (6), Area Type (DB)
-                tpSize, (byte) ((size >> 8) & 0xFF), (byte) (size & 0xFF),
-                (byte) ((db >> 8) & 0xFF), (byte) (db & 0xFF), (byte) 0x84,
-                // Address: Bit Address, Byte Offset (16), Reserved
-                0x00, (byte) ((startAddress >> 8) & 0xFF), (byte) (startAddress & 0xFF)
+        return new byte[]{
+            // TPKT + ISO 873/X.224 COTP Header
+            0x03, 0x00, 0x00, (byte) (31), 0x02, (byte) 0xF0, (byte) 0x80,
+            // S7 Header
+            0x32, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00,
+            // Parameter: Function Code, Item Count
+            0x04, 0x01,
+            // Item Header: Variable Specification, Length of Following, Syntax ID
+            0x12, 0x0A, 0x10,
+            // Transport Size, Parameter length, DB Number (6), Area Type (DB)
+            tpSize, (byte) ((size >> 8) & 0xFF), (byte) (size & 0xFF),
+            (byte) ((db >> 8) & 0xFF), (byte) (db & 0xFF), (byte) 0x84,
+            // Address: Bit Address, Byte Offset (16), Reserved
+            0x00, (byte) ((startAddress >> 8) & 0xFF), (byte) (startAddress & 0xFF)
         };
     }
 
@@ -305,13 +303,20 @@ public class S7Client {
 
             // Interpretação do valor lido
             switch (type.toLowerCase()) {
-                case "string" -> value = extractStringFromResponse(response, size);
-                case "block" -> value = bytesToHex(extractBlockFromResponse(response, size), size);
-                case "integer" -> value = extractIntegerFromResponse(response);
-                case "float" -> value = extractFloatFromResponse(response);
-                case "byte" -> value = extractByteFromResponse(response);
-                case "boolean" -> value = extractBooleanFromResponse(response);
-                default -> throw new IllegalArgumentException("Tipo de variável não suportado.");
+                case "string" ->
+                    value = extractStringFromResponse(response, size);
+                case "block" ->
+                    value = bytesToHex(extractBlockFromResponse(response, size), size);
+                case "integer" ->
+                    value = extractIntegerFromResponse(response);
+                case "float" ->
+                    value = extractFloatFromResponse(response);
+                case "byte" ->
+                    value = extractByteFromResponse(response);
+                case "boolean" ->
+                    value = extractBooleanFromResponse(response);
+                default ->
+                    throw new IllegalArgumentException("Tipo de variável não suportado.");
             }
 
             System.out.println("Retorno de Leitura: " + value);
@@ -342,9 +347,7 @@ public class S7Client {
 
             return response[21] == (byte) 0xFF;
 
-        } catch (
-
-        IOException e) {
+        } catch (IOException e) {
             throw new Exception("Erro ao enviar o pacote de leitura: " + e.getMessage(), e);
         }
 
@@ -389,12 +392,15 @@ public class S7Client {
 
     public void disconnect() {
         try {
-            if (outputStream != null)
+            if (outputStream != null) {
                 outputStream.close();
-            if (inputStream != null)
+            }
+            if (inputStream != null) {
                 inputStream.close();
-            if (socket != null)
+            }
+            if (socket != null) {
                 socket.close();
+            }
             System.out.println("Conexão com o CLP encerrada.");
         } catch (IOException e) {
             System.err.println("Erro ao encerrar a conexão: " + e.getMessage());
@@ -409,15 +415,3 @@ public class S7Client {
         return sb.toString().trim();
     }
 }
-
-
-
-
-
-
-
-
-
-
-}
- 

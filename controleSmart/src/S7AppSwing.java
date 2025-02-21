@@ -1,27 +1,51 @@
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 public class S7AppSwing extends JFrame {
 
+    public static boolean leitura = true;
+
+    public static byte[] indxColor = new byte[28];
+
+    public JTextField textIp;
+    public JPanel pnLBlkEst;
+    public PlcConnector plcEstoque;
+
+    @SuppressWarnings("unused")
     public S7AppSwing() {
         setTitle("Leitura e Escrita de TAGs no CLP - Protocolo S7");
-        setSize(450, 600);
+        setSize(850, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
+        setLocationRelativeTo(null);
+
+        // Criar painel onde os quadrados serão desenhados
+        pnLBlkEst = new JPanel();
+        pnLBlkEst.setBounds(380, 10, 275, 245);
+        Border borderPanel = BorderFactory.createLineBorder(Color.BLACK, 1);
+        pnLBlkEst.setBorder(borderPanel);
+        pnLBlkEst.setLayout(null);
+        add(pnLBlkEst);
+        updatePnlBlocks();
 
         JLabel labelIp = new JLabel("Ip Host:");
         labelIp.setBounds(50, 10, 100, 30);
         add(labelIp);
 
-        JTextField textIp = new JTextField("10.74.241.10");
+        textIp = new JTextField("10.74.241.10");
         textIp.setBounds(150, 10, 200, 30);
         add(textIp);
 
@@ -117,6 +141,13 @@ public class S7AppSwing extends JFrame {
         buttonLeituras.setBounds(150, 500, 200, 30);
         add(buttonLeituras);
 
+        JButton btnUpdate = new JButton("Update");
+        btnUpdate.setBounds(380, 260, 275, 30);
+        add(btnUpdate);
+
+        btnUpdate.addActionListener((ActionEvent e) -> {
+            updatePnlBlocks();
+        });
         buttonLeituras.addActionListener((ActionEvent e) -> {
 
         });
@@ -229,6 +260,8 @@ public class S7AppSwing extends JFrame {
             }
         });
 
+        // Atualiza os blocos após a criação da interface
+        SwingUtilities.invokeLater(() -> updatePnlBlocks());
     }
 
     private static String bytesToHex(byte[] bytes, int length) {
@@ -245,6 +278,49 @@ public class S7AppSwing extends JFrame {
 
     private static void extracted(int id, byte[] bytes) {
 
+    }
+
+    private void updatePnlBlocks() {
+
+        // Verifica se textIp foi inicializado
+        if (textIp == null) {
+            System.out.println("Erro: textIp não foi inicializado!");
+            return; // Sai do método se textIp for null
+        }
+        plcEstoque = new PlcConnector(textIp.getText().trim(), 102);
+        try {
+            plcEstoque.connect();
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        try {
+            indxColor = plcEstoque.readBlock(9, 68, 28);
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        int largura = 35; // Largura do bloco
+        int altura = 35; // Altura do bloco
+        int espaco = 10;  // Espaço entre os blocos
+
+        for (int i = 0; i < 28; i++) {
+            JLabel label = new JLabel("P" + (i + 1), SwingConstants.CENTER);
+            // Define o tamanho do JPanel
+            label.setSize(largura, altura);
+            //adiciona uma borda para visualização
+            label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            // Calcula a posição do JPanel
+            int x = (i % 6) * (largura + espaco);
+            int y = (i / 6) * (altura + espaco);
+            label.setLocation(x + 10, y + 10);
+            // Adicionar o JLabel ao JPanel
+            pnLBlkEst.add(label);
+            pnLBlkEst.revalidate();
+            pnLBlkEst.repaint();
+        }
     }
 
     public static void main(String[] args) throws Exception {
