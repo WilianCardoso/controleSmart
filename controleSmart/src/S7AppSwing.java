@@ -1,45 +1,22 @@
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
+import javax.swing.*;
 
 public class S7AppSwing extends JFrame {
 
-    public static boolean leitura = true;
-
-    public static byte[] indxColor = new byte[28];
+    private JPanel pnlBlkEst;
+    public static byte[] indexColorEst = new byte[28];
+    public PlcConnector plcEstDb9;
 
     public JTextField textIp;
-    public JPanel pnLBlkEst;
-    public PlcConnector plcEstoque;
 
-    @SuppressWarnings("unused")
     public S7AppSwing() {
         setTitle("Leitura e Escrita de TAGs no CLP - Protocolo S7");
         setSize(850, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
-
-        // Criar painel onde os quadrados serão desenhados
-        pnLBlkEst = new JPanel();
-        pnLBlkEst.setBounds(380, 10, 275, 245);
-        Border borderPanel = BorderFactory.createLineBorder(Color.BLACK, 1);
-        pnLBlkEst.setBorder(borderPanel);
-        pnLBlkEst.setLayout(null);
-        add(pnLBlkEst);
-        updatePnlBlocks();
 
         JLabel labelIp = new JLabel("Ip Host:");
         labelIp.setBounds(50, 10, 100, 30);
@@ -141,13 +118,20 @@ public class S7AppSwing extends JFrame {
         buttonLeituras.setBounds(150, 500, 200, 30);
         add(buttonLeituras);
 
-        JButton btnUpdate = new JButton("Update");
-        btnUpdate.setBounds(380, 260, 275, 30);
-        add(btnUpdate);
+        pnlBlkEst = new JPanel();
+        pnlBlkEst.setBounds(380, 10, 280, 245);
+        pnlBlkEst.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        pnlBlkEst.setLayout(null);
+        add(pnlBlkEst);
+        updatePnlEstoque();
 
-        btnUpdate.addActionListener((ActionEvent e) -> {
-            updatePnlBlocks();
+        JButton buttonUpdate = new JButton("Update");
+        buttonUpdate.setBounds(380, 265, 280, 30);
+        add(buttonUpdate);
+        buttonUpdate.addActionListener((ActionEvent e) -> {
+            updatePnlEstoque();
         });
+
         buttonLeituras.addActionListener((ActionEvent e) -> {
 
         });
@@ -260,8 +244,6 @@ public class S7AppSwing extends JFrame {
             }
         });
 
-        // Atualiza os blocos após a criação da interface
-        SwingUtilities.invokeLater(() -> updatePnlBlocks());
     }
 
     private static String bytesToHex(byte[] bytes, int length) {
@@ -280,47 +262,62 @@ public class S7AppSwing extends JFrame {
 
     }
 
-    private void updatePnlBlocks() {
-
-        // Verifica se textIp foi inicializado
-        if (textIp == null) {
-            System.out.println("Erro: textIp não foi inicializado!");
-            return; // Sai do método se textIp for null
-        }
-        plcEstoque = new PlcConnector(textIp.getText().trim(), 102);
+    private void updatePnlEstoque() {
+        plcEstDb9 = new PlcConnector(textIp.getText().trim(), 102);
         try {
-            plcEstoque.connect();
-        } catch (Exception e) {
-
-            e.printStackTrace();
+            plcEstDb9.connect();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         try {
-            indxColor = plcEstoque.readBlock(9, 68, 28);
-        } catch (Exception e) {
+            indexColorEst = plcEstDb9.readBlock(9, 68, 28);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            System.out.println("Falha");
 
-            e.printStackTrace();
         }
-
-        int largura = 35; // Largura do bloco
-        int altura = 35; // Altura do bloco
-        int espaco = 10;  // Espaço entre os blocos
-
         for (int i = 0; i < 28; i++) {
-            JLabel label = new JLabel("P" + (i + 1), SwingConstants.CENTER);
-            // Define o tamanho do JPanel
-            label.setSize(largura, altura);
-            //adiciona uma borda para visualização
-            label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            // Calcula a posição do JPanel
-            int x = (i % 6) * (largura + espaco);
-            int y = (i / 6) * (altura + espaco);
-            label.setLocation(x + 10, y + 10);
-            // Adicionar o JLabel ao JPanel
-            pnLBlkEst.add(label);
-            pnLBlkEst.revalidate();
-            pnLBlkEst.repaint();
+            System.out.println(indexColorEst[i]);
         }
+
+        SwingUtilities.invokeLater(() -> {
+            pnlBlkEst.removeAll();
+            int largura = 35;
+            int altura = 35;
+            int espaco = 10;
+
+            for (int i = 0; i < 28; i++) {
+                JLabel label = new JLabel("" + (i + 1), SwingConstants.CENTER);
+                label.setSize(largura, altura);
+                label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                label.setOpaque(true);
+                label.setForeground(Color.WHITE);
+                int x = (i % 6) * (largura + espaco);
+                int y = (i / 6) * (altura + espaco);
+                label.setLocation(x + 10, y + 10);
+
+                int color = (int) indexColorEst[i];
+                switch (color) {
+                    case 0 -> {
+                        label.setBackground(Color.lightGray);
+                    }
+                    case 1 -> {
+                        label.setBackground(Color.BLACK);
+                    }
+                    case 2 -> {
+                        label.setBackground(Color.RED);
+                    }
+                    case 3 -> {
+                        label.setBackground(Color.BLUE);
+                    }
+                }
+
+                pnlBlkEst.add(label);
+                pnlBlkEst.revalidate();
+                pnlBlkEst.repaint();
+            }
+        });
     }
 
     public static void main(String[] args) throws Exception {

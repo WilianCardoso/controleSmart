@@ -1,5 +1,9 @@
 //-------------------------------------------------------------------------------------------------
-
+/*
+ *  Classe de implementação parcial do protocolo S7 Siemens
+ *  para leitura e escrita de DATA BLOCKs (DB) do CLP
+ */
+//-------------------------------------------------------------------------------------------------
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -305,8 +309,9 @@ public class S7Client {
             switch (type.toLowerCase()) {
                 case "string" ->
                     value = extractStringFromResponse(response, size);
+                //case "block" -> value = bytesToHex(extractBlockFromResponse(response, size), size);
                 case "block" ->
-                    value = bytesToHex(extractBlockFromResponse(response, size), size);
+                    value = extractBlockFromResponse(response, size);
                 case "integer" ->
                     value = extractIntegerFromResponse(response);
                 case "float" ->

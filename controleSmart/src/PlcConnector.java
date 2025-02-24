@@ -1,8 +1,5 @@
 //-------------------------------------------------------------------------------------------------
-/*  SENAI TIMBÓ/SC
- *  CURSO TÉCNICO EM DESENVOLVIMENTO DE SISTEMAS
- *  AUTOR: Gerson Trindade        DATA: AGO/2024
- * 
+/* 
  *  Classe de conexão com CLP Siemens usando S7Client
  *  para leitura e escrita de variáveis no CLP S71200 e S71500
  */
