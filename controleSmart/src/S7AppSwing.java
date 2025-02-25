@@ -1,13 +1,28 @@
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 public class S7AppSwing extends JFrame {
 
     private JPanel pnlBlkEst;
+    private JPanel pnlExp;
+
     public static byte[] indexColorEst = new byte[28];
+    public Integer indexExpedition;
+
     public PlcConnector plcEstDb9;
+    public PlcConnector plcExpDb9;
 
     public JTextField textIp;
 
@@ -125,11 +140,25 @@ public class S7AppSwing extends JFrame {
         add(pnlBlkEst);
         updatePnlEstoque();
 
+        pnlExp = new JPanel();
+        pnlExp.setBounds(380, 300, 370, 160);
+        pnlExp.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        pnlExp.setLayout(null);
+        add(pnlExp);
+        UpdatePnlExp();
+
         JButton buttonUpdate = new JButton("Update");
         buttonUpdate.setBounds(380, 265, 280, 30);
         add(buttonUpdate);
         buttonUpdate.addActionListener((ActionEvent e) -> {
             updatePnlEstoque();
+        });
+
+        JButton buttonUpdateExp = new JButton("Update");
+        buttonUpdateExp.setBounds(380, 465, 370, 30);
+        add(buttonUpdateExp);
+        buttonUpdateExp.addActionListener((ActionEvent e) -> {
+            UpdatePnlExp();
         });
 
         buttonLeituras.addActionListener((ActionEvent e) -> {
@@ -282,7 +311,8 @@ public class S7AppSwing extends JFrame {
         }
 
         SwingUtilities.invokeLater(() -> {
-            pnlBlkEst.removeAll();
+            pnlExp.removeAll();
+            pnlExp.setLayout(null);
             int largura = 35;
             int altura = 35;
             int espaco = 10;
@@ -316,6 +346,58 @@ public class S7AppSwing extends JFrame {
                 pnlBlkEst.add(label);
                 pnlBlkEst.revalidate();
                 pnlBlkEst.repaint();
+            }
+        });
+    }
+
+    private void UpdatePnlExp() {
+        int values[] = new int[12];
+
+        plcExpDb9 = new PlcConnector("10.74.241.40", 102);
+        try {
+            plcExpDb9.connect();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            int j = 0;
+            for (int i = 6; i <= 28; i += 2) {
+                values[j] = plcExpDb9.readInt(9, i);
+                j++;
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            System.out.println("Falha");
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            pnlExp.removeAll();
+            int altura = 40;
+            int largura = 80;
+            int espaco = 10;
+
+            for (int i = 0; i < 12; i++) {
+                JLabel label;
+                if (values[i] == 0) {
+                    label = new JLabel("P" + (i + 1) + "= [ ___ ]", SwingConstants.CENTER);
+                } else {
+                    String formattedValue = String.format("OP%04d", values[i]);
+                    label = new JLabel("P" + (i + 1) + "= [" + formattedValue + "]", SwingConstants.CENTER);
+                }
+                label.setSize(largura, altura);
+                label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                label.setFont(new Font("Arial", Font.PLAIN, 10));
+                label.setOpaque(true);
+                label.setForeground(Color.WHITE);
+                label.setBackground(Color.DARK_GRAY);
+                int x = (i % 4) * (largura + espaco);
+                int y = (i / 4) * (altura + espaco);
+                label.setLocation(x + 10, y + 10);
+
+                pnlExp.add(label);
+                pnlExp.revalidate();
+                pnlExp.repaint();
             }
         });
     }
